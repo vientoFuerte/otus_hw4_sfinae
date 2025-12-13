@@ -1,19 +1,15 @@
 cmake_minimum_required(VERSION 3.12)
 
-
 project(print_ip)
 
 #option(WITH_BOOST_TEST "Whether to build Boost test" ON)
 
-
 add_executable(print_ip main.cpp)
-
 
 set_target_properties(print_ip PROPERTIES
     CXX_STANDARD 17
     CXX_STANDARD_REQUIRED ON
 )
-
 
 if(WITH_BOOST_TEST)
     find_package(Boost COMPONENTS unit_test_framework REQUIRED)
@@ -62,7 +58,7 @@ target_compile_definitions(print_ip PRIVATE
 install(TARGETS print_ip RUNTIME DESTINATION bin)
 
 set(CPACK_GENERATOR DEB)
-
+set(CPACK_DEBIAN_FILE_NAME "print_ip.deb")
 set(CPACK_PACKAGE_CONTACT example@example.com)
 include(CPack)
 
