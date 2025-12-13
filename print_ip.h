@@ -29,15 +29,23 @@ struct is_int <int8_t>{
     static const bool value = true;
 };
 
+// Добавляем специализацию для int16_t
+template<>
+struct is_int <int16_t>{
+    static const bool value = true;
+};
+
+// Добавляем специализацию для int64_t
+template<>
+struct is_int <int64_t>{
+    static const bool value = true;
+};
 
 template <bool C, class T=void>
 struct enable_if: type_is<T> {};
 
 template<class T> 
 struct enable_if<false, T> {};
-
-
-//enable_if<false, int> ::type;
 
 
 // Основная функция print_ip с SFINAE
