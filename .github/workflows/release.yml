@@ -1,4 +1,4 @@
-name: 'C++ CI'
+name: 'C++ CI with Documentation'
 
 on:
   push:
@@ -22,7 +22,9 @@ jobs:
             libgtest-dev \
             libgmock-dev \
             cmake \
-            build-essential
+            build-essential \
+            doxygen \
+            graphviz
           cd /usr/src/googletest
           sudo cmake CMakeLists.txt
           sudo make
@@ -46,11 +48,36 @@ jobs:
       
       - run: cmake --build . --target package
 
-         # ДОБАВЛЕНО: Переименовываем созданный deb-пакет
-     # - run: |
-     #     echo "Renaming deb package to allocator-Linux.deb..."
-     #    mv allocator-*.deb allocator-Linux.deb 2>/dev/null || true
-     #   ls -la *.deb
+      # Генерируем документацию Doxygen
+      - name: Generate Doxygen documentation
+        run: |
+          # Проверяем наличие Doxyfile или создаем его
+          if [ ! -f "Doxyfile" ]; then
+            echo "Doxyfile not found, generating default configuration..."
+            doxygen -g Doxyfile
+            # Обновляем основные настройки
+            sed -i 's/^PROJECT_NAME.*/PROJECT_NAME = "Print IP"/' Doxyfile
+            sed -i 's/^OUTPUT_DIRECTORY.*/OUTPUT_DIRECTORY = docs/' Doxyfile
+            sed -i 's/^GENERATE_HTML.*/GENERATE_HTML = YES/' Doxyfile
+            sed -i 's/^GENERATE_LATEX.*/GENERATE_LATEX = NO/' Doxyfile
+            sed -i 's/^RECURSIVE.*/RECURSIVE = YES/' Doxyfile
+            sed -i 's/^EXTRACT_ALL.*/EXTRACT_ALL = YES/' Doxyfile
+            sed -i 's/^EXTRACT_PRIVATE.*/EXTRACT_PRIVATE = YES/' Doxyfile
+            sed -i 's/^EXTRACT_STATIC.*/EXTRACT_STATIC = YES/' Doxyfile
+          fi
+                    
+          # Генерируем документацию
+          mkdir -p docs
+          doxygen Doxyfile
+          
+          # Проверяем, сгенерировалась ли HTML документация
+          if [ -d "docs/html" ]; then
+            echo "Documentation generated successfully"
+            ls -la docs/html/
+          else
+            echo "Warning: HTML documentation was not generated"
+            ls -la docs/
+          fi
           
       - name: Create Release
         id: create_release
@@ -73,3 +100,16 @@ jobs:
           asset_path: ./print_ip.deb
           asset_name: print_ip.deb
           asset_content_type: application/vnd.debian.binary-package
+
+      # Публикуем документацию на GitHub Pages
+      - name: Deploy documentation to GitHub Pages
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs/html
+          publish_branch: gh-pages
+          force_orphan: true
+          user_name: 'github-actions[bot]'
+          user_email: 'github-actions[bot]@users.noreply.github.com'
+          commit_message: 'Deploy Doxygen documentation'
