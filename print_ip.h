@@ -1,82 +1,55 @@
 #pragma once
-#if 1
-// тип как параметр
-template<typename T>
-struct is_int {
-	static const bool value = false;
-}
 
-template<>
-struct is_int <int_8>{
-	static const bool value = true;
-}
-
-// is_int <int_8>:: value вернет true
-
-
-// тип как результатremov
-template<typename T>
-struct remove_const {
-	using type = T;
-}
-
-template<typename T>
-struct remove_const <const T>{
-	using type = T;
-}
-
-//remove_const<int>:: type a1;
-//remove_const<const int>:: type a2;
-
-
-//наследование
+#include <type_traits>
+#include <cstdint>
+#include <iostream>
+#include <cstring>  
 
 template<typename T>
 struct type_is{
 	using type = T;
-}
+};
 
+// тип как параметр
 template<typename T>
-struct remove_const: type_is<T> {};
-
-template<typename T>
-struct remove_const <const T>: type_is<T> {};
-
-template<typename T>
-
-using remove_const_t = typename remove_const<T>::type
+struct is_int {
+	static const bool value = false;
+};
 
 
-//sfinae
+// is_int <int>::value вернет true
+template<>
+struct is_int <int>{
+	static const bool value = true;
+};
 
-template <bool C, Class T, Class F>
-struct conditional: type_is<T> {};
-
-template <class T, class F>
-struct conditional<false, T, F> : type_is<F> {};
-//sfinae
-
+// Добавляем специализацию для int8_t
+template<>
+struct is_int <int8_t>{
+    static const bool value = true;
+};
 
 
-template <bool C, Class T>
+template <bool C, class T=void>
 struct enable_if: type_is<T> {};
 
-template <Class T>
-struct enable_if: <false, T> {};
-
-enable_if<false, int> :: type;
+template<class T> 
+struct enable_if<false, T> {};
 
 
-namespace first_attempt{
+//enable_if<false, int> ::type;
 
-template<typename T>
-auto sort_container(T &container) ->decltype container.sort
-   container.sort();
-   
-template<typename T>
-auto sort_container(T &container) ->void
-   std::sort( container.begin(), container.end())
-   
+
+// Основная функция print_ip с SFINAE
+template<typename T, 
+         typename = typename enable_if<is_int<T>::value>::type>
+void print_ip(T ip) {
+    // получение байтов
+     unsigned char bytes[sizeof(T)];
+    std::memcpy(bytes, &ip, sizeof(T));
+    for (size_t i = sizeof(T); i > 0; --i) {
+        std::cout << static_cast<unsigned int>(bytes[i - 1]);
+        if (i > 1) std::cout << ".";
+    }
+    std::cout << std::endl;
 }
-
-#endif
