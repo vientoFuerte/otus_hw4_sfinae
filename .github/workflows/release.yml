@@ -36,8 +36,8 @@ jobs:
       
       # Проверяем и запускаем тесты если они есть
       - run: |
-          if [ -f "./allocator_tests" ]; then
-            ./allocator_tests
+          if [ -f "./print_ip_tests" ]; then
+            ./print_ip_tests
           elif [ -f "./test.cpp" ]; then
             echo "Test executable not found, but test.cpp exists"
           else
@@ -47,10 +47,10 @@ jobs:
       - run: cmake --build . --target package
 
          # ДОБАВЛЕНО: Переименовываем созданный deb-пакет
-      - run: |
-          echo "Renaming deb package to allocator-Linux.deb..."
-          mv allocator-*.deb allocator-Linux.deb 2>/dev/null || true
-          ls -la *.deb
+     # - run: |
+     #     echo "Renaming deb package to allocator-Linux.deb..."
+     #    mv allocator-*.deb allocator-Linux.deb 2>/dev/null || true
+     #   ls -la *.deb
           
       - name: Create Release
         id: create_release
@@ -70,6 +70,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./print_ip-Linux.deb
-          asset_name: print_ip-Linux.deb
+          asset_path: ./print_ip.deb
+          asset_name: print_ip.deb
           asset_content_type: application/vnd.debian.binary-package
