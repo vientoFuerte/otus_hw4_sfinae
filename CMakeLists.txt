@@ -3,6 +3,8 @@ cmake_minimum_required(VERSION 3.12)
 project(print_ip)
 
 #option(WITH_BOOST_TEST "Whether to build Boost test" ON)
+# Опция для включения Doxygen
+option(WITH_DOXYGEN "Build Doxygen documentation" OFF)
 
 add_executable(print_ip main.cpp)
 
@@ -60,6 +62,40 @@ install(TARGETS print_ip RUNTIME DESTINATION bin)
 set(CPACK_GENERATOR DEB)
 set(CPACK_DEBIAN_FILE_NAME "print_ip.deb")
 set(CPACK_PACKAGE_CONTACT example@example.com)
+
+
+# Doxygen документация
+if(WITH_DOXYGEN)
+    find_package(Doxygen)
+    if(DOXYGEN_FOUND)
+        # Настройки Doxygen
+        set(DOXYGEN_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/docs)
+        set(DOXYGEN_GENERATE_HTML YES)
+        set(DOXYGEN_GENERATE_LATEX NO)
+        set(DOXYGEN_EXTRACT_ALL YES)
+        set(DOXYGEN_EXTRACT_PRIVATE YES)
+        set(DOXYGEN_EXTRACT_STATIC YES)
+        set(DOXYGEN_RECURSIVE YES)
+        set(DOXYGEN_USE_MDFILE_AS_MAINPAGE ${CMAKE_SOURCE_DIR}/README.md)
+        
+        # Создаем цель для документации
+        doxygen_add_docs(docs
+            ${CMAKE_SOURCE_DIR}/include
+            ${CMAKE_SOURCE_DIR}/src
+            ${CMAKE_SOURCE_DIR}/main.cpp
+            ${CMAKE_SOURCE_DIR}/test.cpp
+            COMMENT "Generating API documentation with Doxygen"
+        )
+        
+        # Устанавливаем документацию
+        install(DIRECTORY ${CMAKE_BINARY_DIR}/docs/html
+            DESTINATION share/doc/print_ip
+        )
+    else()
+        message(WARNING "Doxygen not found, documentation will not be generated")
+    endif()
+endif()
+
 include(CPack)
 
 if(WITH_BOOST_TEST)
