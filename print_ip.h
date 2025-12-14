@@ -61,3 +61,11 @@ void print_ip(T ip) {
     }
     std::cout << std::endl;
 }
+
+// Для std::string
+template<typename T,
+         typename = typename enable_if<std::is_same<T, std::string>::value>::type>
+void print_ip(const T &ip) {
+
+        std::cout << ip<< std::endl;
+}
