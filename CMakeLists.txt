@@ -4,7 +4,7 @@ project(print_ip)
 
 #option(WITH_BOOST_TEST "Whether to build Boost test" ON)
 # Опция для включения Doxygen
-option(WITH_DOXYGEN "Build Doxygen documentation" ON)
+option(WITH_DOXYGEN "Build Doxygen documentation" OFF)
 
 add_executable(print_ip main.cpp)
 
@@ -87,10 +87,20 @@ if(WITH_DOXYGEN)
             COMMENT "Generating API documentation with Doxygen"
         )
         
-        # Устанавливаем документацию
+        # Устанавливаем документацию только если она сгенерирована
         install(DIRECTORY ${CMAKE_BINARY_DIR}/docs/html
             DESTINATION share/doc/print_ip
+            OPTIONAL  # Ключевое изменение: делаем установку опциональной
         )
+
+        # Зависимость для сборки документации перед упаковкой
+        add_custom_target(package_docs
+            COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target docs
+            COMMENT "Building documentation before packaging"
+        )
+        
+        # Связываем упаковку с генерацией документации
+        add_dependencies(package package_docs)
     else()
         message(WARNING "Doxygen not found, documentation will not be generated")
     endif()
