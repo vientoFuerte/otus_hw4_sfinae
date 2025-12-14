@@ -51,6 +51,7 @@ jobs:
       # Генерируем документацию Doxygen
       - name: Generate Doxygen documentation
         run: |
+          echo "=== Generating Doxygen documentation ==="
           # Проверяем наличие Doxyfile или создаем его
           if [ ! -f "Doxyfile" ]; then
             echo "Doxyfile not found, generating default configuration..."
@@ -64,11 +65,16 @@ jobs:
             sed -i 's/^EXTRACT_ALL.*/EXTRACT_ALL = YES/' Doxyfile
             sed -i 's/^EXTRACT_PRIVATE.*/EXTRACT_PRIVATE = YES/' Doxyfile
             sed -i 's/^EXTRACT_STATIC.*/EXTRACT_STATIC = YES/' Doxyfile
+            # Указываем входные файлы
+            sed -i 's|^INPUT.*|INPUT = print_ip.h main.cpp test.cpp|' Doxyfile
           fi
-                    
+          
+          # 2. Очищаем старую документацию
+          rm -rf docs
+          
           # Генерируем документацию
-          mkdir -p docs
-          doxygen Doxyfile
+          echo "Running Doxygen..."
+          doxygen Doxyfile 2>&1 | grep -E "(warning|error|Generating)" || true
           
           # Проверяем, сгенерировалась ли HTML документация
           if [ -d "docs/html" ]; then
