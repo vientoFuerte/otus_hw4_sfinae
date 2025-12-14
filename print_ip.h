@@ -5,6 +5,7 @@
 #include <iostream>
 #include <cstring>  
 #include <vector>
+#include <list>
 
 template<typename T>
 struct type_is{
@@ -46,12 +47,16 @@ struct is_int <int64_t>{
 
 // Проверка на vector<int>
 template<typename T>
-struct is_vector_int {
+struct is_vector_int_or_list_short {
     static const bool value = false;
 };
 
 template<>
-struct is_vector_int<std::vector<int>> {
+struct is_vector_int_or_list_short<std::vector<int>> {
+    static const bool value = true;
+};
+template<>
+struct is_vector_int_or_list_short<std::list<short>> {
     static const bool value = true;
 };
 
@@ -86,15 +91,21 @@ void print_ip(const T &ip, int=0) {
         std::cout << ip<< std::endl;
 }
 
-// Для vector<int> (Использован дополнительный фиктивный параметр, чтобы отличать от версии std::string)
+// Для vector<int> и list<short>(Использован дополнительный фиктивный параметр, чтобы отличать от версии std::string)
 template<typename T,
-     typename = typename enable_if<is_vector_int<T>::value>::type>
+     typename = typename enable_if<is_vector_int_or_list_short<T>::value>::type>
 void print_ip(const T &ip, long=0) {
 
-	for (size_t i=0; i<ip.size()-1; i++)
-	{
-    	std::cout <<ip[i]<< ".";
-    }
-	std::cout<<ip[ip.size()-1]<< std::endl;
+	 for (auto it = ip.begin(); it != ip.end(); ++it) {
+		    std::cout << *it;
+		 // Если это не последний элемент, выводим точку
+        if (std::next(it) != ip.end()) {
+            std::cout << ".";
+        }	
+		}
+
+		std::cout << std::endl;
 }
+
+
 
