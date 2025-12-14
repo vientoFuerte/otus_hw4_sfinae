@@ -13,13 +13,8 @@ set_target_properties(print_ip PROPERTIES
     CXX_STANDARD_REQUIRED ON
 )
 
-if(WITH_BOOST_TEST)
-    find_package(Boost COMPONENTS unit_test_framework REQUIRED)
 
-endif()
-
-
-# 3. Тест (если файл test.cpp существует)
+# Тест (если файл test.cpp существует)
 if(EXISTS ${CMAKE_CURRENT_SOURCE_DIR}/test.cpp)
     # Ищем установленный gtest
     find_package(GTest REQUIRED)
@@ -98,9 +93,7 @@ if(WITH_DOXYGEN)
             COMMAND ${CMAKE_COMMAND} --build ${CMAKE_BINARY_DIR} --target docs
             COMMENT "Building documentation before packaging"
         )
-        
-        # Связываем упаковку с генерацией документации
-        add_dependencies(package package_docs)
+   
     else()
         message(WARNING "Doxygen not found, documentation will not be generated")
     endif()
