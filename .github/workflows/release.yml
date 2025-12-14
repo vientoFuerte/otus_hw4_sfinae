@@ -110,6 +110,7 @@ jobs:
           publish_dir: ./docs/html
           publish_branch: gh-pages
           force_orphan: true
+          jekyll: false  # Явно отключаем обработку Jekyll
           user_name: 'github-actions[bot]'
           user_email: 'github-actions[bot]@users.noreply.github.com'
           commit_message: 'Deploy Doxygen documentation'
