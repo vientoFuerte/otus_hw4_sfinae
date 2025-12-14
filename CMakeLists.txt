@@ -4,7 +4,7 @@ project(print_ip)
 
 #option(WITH_BOOST_TEST "Whether to build Boost test" ON)
 # Опция для включения Doxygen
-option(WITH_DOXYGEN "Build Doxygen documentation" OFF)
+option(WITH_DOXYGEN "Build Doxygen documentation" ON)
 
 add_executable(print_ip main.cpp)
 
